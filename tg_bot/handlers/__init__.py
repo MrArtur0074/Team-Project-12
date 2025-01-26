@@ -1,1 +1,1 @@
-from tg_bot.handlers.echo import echo_router
+from tg_bot.handlers.image import image_router

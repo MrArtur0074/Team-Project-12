@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from config import bot, dp, set_commands
-from handlers import echo_router
+from handlers import image_router
 
 # async def on_startup(dispatcher):
 #     print('Бот вышел в онлайн')
@@ -16,7 +16,7 @@ async def main():
     # dp.include_router(scheduler_router)
     # dp.include_router(group_administration_router)
 
-    dp.include_router(echo_router)
+    dp.include_router(image_router)
     # dp.startup.register(on_startup)
 
     await dp.start_polling(bot)
