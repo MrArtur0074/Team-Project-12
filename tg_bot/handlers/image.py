@@ -16,7 +16,6 @@ async def pic(message: types.Message):
         await bot.download_file(file.file_path, "handlers/student.png")
         with open("handlers/student.png", "rb") as photo_file:
             photo_base64 = base64.b64encode(photo_file.read()).decode("utf-8")
-        # TODO SEND BASE64 TO API
         response = send_file(photo_base64)
         await message.reply(
             text=f"Вы отправили фотку <a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>\n\n"
