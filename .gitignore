@@ -2,3 +2,5 @@ venv/
 .idea/
 .DS_Store
 api/db.sqlite3
+api/photoscan/faces
+api/photoscan/files
