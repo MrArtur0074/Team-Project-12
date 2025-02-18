@@ -19,7 +19,6 @@ faces = haar_cascade.detectMultiScale(
     image=gray_image, scaleFactor=1.05, minNeighbors=5, minSize=(100, 100)
 )
 
-# Обрезка и сохранение лиц
 os.makedirs("faces/result", exist_ok=True)
 i = 0
 for x, y, w, h in faces:
@@ -30,7 +29,6 @@ for x, y, w, h in faces:
 
 print(f"Количество найденных лиц: {len(faces)}")
 
-# Инициализация модели и получение эмбеддингов
 ibed = imgbeddings()
 result_embeddings = {}
 
@@ -38,32 +36,28 @@ for file in os.listdir("faces/result/"):
     img_path = f"faces/result/{file}"
     img = Image.open(img_path)
 
-    # Получение эмбеддинга и проверка типа данных
     embedding = np.array(ibed.to_embeddings(img)).ravel()
     result_embeddings[file] = embedding
 
-# Загружаем и обрабатываем лицо для поиска
 try:
-    img_to_check = Image.open("faces/template/img_4.png")
+    img_to_check = Image.open("faces/ryan/ryan_ken.png")
     target_embedding = np.array(ibed.to_embeddings(img_to_check)).ravel()
 except FileNotFoundError:
     print("Файл для сравнения не найден.")
     exit()
 
-# Поиск самого похожего лица
 closest_face = None
 closest_distance = float("inf")
-threshold = 0.2  # Порог для совпадения
+threshold = 0.23  # Порог для совпадения
 
 for file, embedding in result_embeddings.items():
-    # Проверка размеров эмбеддингов перед расчетом
+    print(type(embedding))
     if embedding.shape == target_embedding.shape:
         distance = cosine(target_embedding, embedding)
         if distance < closest_distance:
             closest_face = file
             closest_distance = distance
 
-# Вывод результата
 if closest_distance < threshold:
     print(f"Самое похожее лицо: {closest_face}, расстояние: {closest_distance}")
 else:
