@@ -33,49 +33,44 @@ def getEmbeddingFromBase64(base64_string: str):
         return e
 
 
-def checkEquality(embeddings : dict, targetEmbedding : numpy.ndarray):
-    if not imgbeddings:
+def checkEquality(embeddings: dict, targetEmbedding: np.ndarray):
+    if not embeddings:  # Если база пустая, возвращаем None (новое лицо)
         return None
+
     threshold = 0.23
-    closest_distance = 0
+    closest_distance = float("inf")  # Инициализируем большим значением
     closest_face = None
+
     for file, embedding in embeddings.items():
-        print(type(embedding))
         if embedding.shape == targetEmbedding.shape:
             distance = cosine(targetEmbedding, embedding)
-            if distance < closest_distance and closest_distance < threshold:
-                closest_face = file
+            if distance < closest_distance:  # Обновляем ближайшее расстояние
                 closest_distance = distance
-    return closest_face
+                closest_face = file
+
+    # Проверяем, попадает ли ближайшее расстояние в порог
+    if closest_distance < threshold:
+        return closest_face
+
+    return None  # Если лицо уникальное
+
 
 
 import base64
-from io import BytesIO
-from PIL import Image
 
-
-def image_to_base64(image_path):
-    """Конвертирует изображение в base64-строку."""
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
-
-
-def base64_to_image(base64_string):
-    """Декодирует base64-строку в изображение."""
-    decoded_data = base64.b64decode(base64_string)
-    image = Image.open(BytesIO(decoded_data))
-    image.verify()  # Проверяем, является ли это изображением
-    return image
-
-
-if __name__ == '__main__':
-    image_path = "faces/template/img_2.png"
-    base64_string = image_to_base64(image_path)
-
+def encode_image_to_base64(image_path):
+    """Читает изображение и кодирует его в Base64"""
     try:
-        decoded_image = base64_to_image(base64_string)
-        # print("✅ Изображение успешно закодировано и декодировано!")
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+        return encoded_string
     except Exception as e:
-        print("❌ Ошибка при декодировании:", e)
-    finally:
-        print(base64_string)
+        print(f"Ошибка при обработке изображения: {e}")
+        return None
+
+image_path = "../files/faces/ryan/ryan_cap.jpg"
+base64_string = encode_image_to_base64(image_path)
+
+if base64_string:
+    print("Base64 код изображения:")
+    print(base64_string)

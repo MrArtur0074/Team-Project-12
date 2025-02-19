@@ -7,7 +7,7 @@ import numpy as np
 
 # Haar Cascade для детекции лиц
 alg = "files/haarcascade_frontalface_default.xml"
-file_path = "faces/template/img.png"
+file_path = "../files/faces/template/img.png"
 haar_cascade = cv2.CascadeClassifier(alg)
 
 # Чтение и конвертация изображения
@@ -19,11 +19,11 @@ faces = haar_cascade.detectMultiScale(
     image=gray_image, scaleFactor=1.05, minNeighbors=5, minSize=(100, 100)
 )
 
-os.makedirs("faces/result", exist_ok=True)
+os.makedirs("../files/faces/result", exist_ok=True)
 i = 0
 for x, y, w, h in faces:
     cropped_image = image[y:y + h, x:x + w]
-    target_file_name = f"faces/result/{i}.jpg"
+    target_file_name = f"../files/faces/result/{i}.jpg"
     cv2.imwrite(target_file_name, cropped_image)
     i += 1
 
@@ -32,15 +32,15 @@ print(f"Количество найденных лиц: {len(faces)}")
 ibed = imgbeddings()
 result_embeddings = {}
 
-for file in os.listdir("faces/result/"):
-    img_path = f"faces/result/{file}"
+for file in os.listdir("../files/faces/result/"):
+    img_path = f"../files/faces/result/{file}"
     img = Image.open(img_path)
 
     embedding = np.array(ibed.to_embeddings(img)).ravel()
     result_embeddings[file] = embedding
 
 try:
-    img_to_check = Image.open("faces/ryan/ryan_ken.png")
+    img_to_check = Image.open("../files/faces/ryan/ryan_ken.png")
     target_embedding = np.array(ibed.to_embeddings(img_to_check)).ravel()
 except FileNotFoundError:
     print("Файл для сравнения не найден.")
