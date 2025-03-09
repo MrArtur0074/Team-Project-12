@@ -10,6 +10,7 @@ class CustomUser(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     confirmation_code = models.CharField(max_length=4, blank=True)
 
+
     groups = models.ManyToManyField(
         "auth.Group",
         related_name="custom_users",

@@ -3,7 +3,9 @@ from admins.models import CustomUser
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from django.contrib.auth.password_validation import validate_password
-import re
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -110,3 +112,22 @@ class ConfirmEmailSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("Invalid email or confirmation code.")
         return data
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.email
+        return token
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        user = User.objects.filter(email=email).first()
+        if user and user.check_password(password):
+            return super().validate({"username": user.username, "password": password})
+
+        raise serializers.ValidationError("Invalid credentials")
+
