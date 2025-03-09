@@ -6,7 +6,7 @@ from scipy.spatial.distance import cosine
 import numpy as np
 
 # Haar Cascade для детекции лиц
-alg = "files/haarcascade_frontalface_default.xml"
+alg = "models/haarcascade_frontalface_default.xml"
 file_path = "../files/faces/template/img.png"
 haar_cascade = cv2.CascadeClassifier(alg)
 

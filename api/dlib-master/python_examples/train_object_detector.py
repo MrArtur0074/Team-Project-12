@@ -70,7 +70,7 @@ testing_xml_path = os.path.join(faces_folder, "testing.xml")
 # This function does the actual training.  It will save the final detector to
 # detector.svm.  The input is an XML file that lists the images in the training
 # dataset and also contains the positions of the face boxes.  To create your
-# own XML files you can use the imglab tool which can be found in the
+# own XML models you can use the imglab tool which can be found in the
 # tools/imglab folder.  It is a simple graphical tool for labeling objects in
 # images with boxes.  To see how to use it read the tools/imglab/README.txt
 # file.  But for this example, we just use the training.xml file included with

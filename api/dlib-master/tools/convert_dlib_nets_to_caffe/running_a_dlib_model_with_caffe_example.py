@@ -18,10 +18,10 @@ import lenet_dlib_to_caffe_model as dlib_model
 
 # lenet_dlib_to_caffe_model defines a function, save_as_caffe_model() that does
 # the work of converting dlib's DNN model to a caffe model and saves it to disk
-# in two files.  These files are all you need to run the model with caffe.
+# in two models.  These models are all you need to run the model with caffe.
 dlib_model.save_as_caffe_model('dlib_model_def.prototxt', 'dlib_model.proto')
 
-# Now that we created the caffe model files, we can load them into a caffe Net object.
+# Now that we created the caffe model models, we can load them into a caffe Net object.
 net = caffe.Net('dlib_model_def.prototxt', 'dlib_model.proto', caffe.TEST);
 
 

@@ -9,8 +9,11 @@ from .serializers import ExamSerializer, ExamResultSerializer
 
 
 class ExamListCreateAPIView(APIView):
-    permission_classes = [IsAdminUser]
 
+    # todo
+    # split get and post
+
+    permission_classes = [IsAdminUser]
     def get(self, request):
         exams = Exam.objects.all()
         serializer = ExamSerializer(exams, many=True)
@@ -25,11 +28,19 @@ class ExamListCreateAPIView(APIView):
 
 
 class ExamDetailAPIView(APIView):
+
+    # todo
+    # split get and post
+
     permission_classes = [IsAdminUser]
 
     def get(self, request, pk):
         exam = get_object_or_404(Exam, pk=pk)
         serializer = ExamSerializer(exam)
+
+        # todo
+        # add all results of this exam
+
         return Response(serializer.data)
 
     def delete(self, request, pk):
@@ -41,11 +52,6 @@ class ExamDetailAPIView(APIView):
 class ExamResultListCreateAPIView(APIView):
     permission_classes = [IsAdminUser]
 
-    def get(self, request):
-        results = ExamResult.objects.all()
-        serializer = ExamResultSerializer(results, many=True)
-        return Response(serializer.data)
-
     def post(self, request):
         exam_id = request.data.get('exam_id')
         applicant_id = request.data.get('applicant_id')
@@ -55,3 +61,13 @@ class ExamResultListCreateAPIView(APIView):
         exam_result = ExamResult.objects.create(exam=exam, applicant=applicant)
 
         return Response(ExamResultSerializer(exam_result).data, status=status.HTTP_201_CREATED)
+
+
+class AddPoints(APIView):
+
+    def post(self, request):
+
+        # todo
+        # get xlsx files and updating points of applicants
+
+        return Response(request)

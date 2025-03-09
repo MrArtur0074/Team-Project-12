@@ -27,7 +27,7 @@ add_links_between_example_programs()
         #escape the . in the filename
         escaped_name=`echo $f | sed -e 's/\./\\\./g'`
         pushd $1 > /dev/null
-        # get a list of all the html example files that contain the name
+        # get a list of all the html example models that contain the name
         matching_html_files=`grep -e "\b$escaped_name\b" -l *.$EXT | sed -e "s/\.$EXT\b/.$EXT.html/g"`
         popd > /dev/null
 
@@ -218,7 +218,7 @@ makedocs ()
     for i in $FILES
     do
 
-        # The last modified date for these files should always be the release date (regardless of when the actual xml files were modified). 
+        # The last modified date for these models should always be the release date (regardless of when the actual xml models were modified).
         if [ "${i}" = "docs/release_notes.xml" -o ${i} = "docs/old_release_notes.xml" \
              -o ${i} = "docs/change_log.xml" -o ${i} = "docs/index.xml" ] 
         then

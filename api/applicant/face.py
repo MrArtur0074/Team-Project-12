@@ -11,7 +11,7 @@ import os
 
 def getEmbeddingFromBase64(base64_string: str):
     try:
-        alg = os.path.abspath("files/files/haarcascade_frontalface_default.xml")
+        alg = os.path.abspath("models/models/haarcascade_frontalface_default.xml")
         if not os.path.exists(alg):
             raise FileNotFoundError(f"Файл не найден: {alg}")
 

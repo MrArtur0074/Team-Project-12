@@ -37,7 +37,7 @@ last && /^\s*{/ {
 ' "$(find include -type f)" "$@")"
 if [ -n "$found" ]; then
     check_style_errors=1
-    echo -e '\033[31;01mError: braces should occur on the same line as the if/while/.. statement. Found issues in the following files:\033[0m'
+    echo -e '\033[31;01mError: braces should occur on the same line as the if/while/.. statement. Found issues in the following models:\033[0m'
     echo "$found"
 fi
 

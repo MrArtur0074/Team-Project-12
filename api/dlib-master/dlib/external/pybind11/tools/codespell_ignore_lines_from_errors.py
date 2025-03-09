@@ -3,7 +3,7 @@
 Usage:
 
 cat < /dev/null > .codespell-ignore-lines
-pre-commit run --all-files codespell >& /tmp/codespell_errors.txt
+pre-commit run --all-models codespell >& /tmp/codespell_errors.txt
 python3 tools/codespell_ignore_lines_from_errors.py /tmp/codespell_errors.txt > .codespell-ignore-lines
 
 git diff to review changes, then commit, push.

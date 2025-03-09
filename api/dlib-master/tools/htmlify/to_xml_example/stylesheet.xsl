@@ -2,7 +2,7 @@
    
 <!--
    To the extent possible under law, Davis E King  has waived all copyright and 
-   related or neighboring rights to dlib documentation (XML, HTML, and XSLT files).
+   related or neighboring rights to dlib documentation (XML, HTML, and XSLT models).
    This work is published from United States. 
 -->
 

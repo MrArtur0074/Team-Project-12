@@ -38,7 +38,7 @@ templates_path = ['_templates']
 # The suffix of source filenames.
 source_suffix = '.rst'
 
-# The encoding of source files.
+# The encoding of source models.
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
@@ -67,8 +67,8 @@ copyright = u'2013, Davis E. King'
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%B %d, %Y'
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
+# List of patterns, relative to source directory, that match models and
+# directories to ignore when looking for source models.
 exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
@@ -122,8 +122,8 @@ html_theme = 'default'
 # pixels large.
 #html_favicon = None
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
+# Add any paths that contain custom static models (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static models,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
@@ -165,7 +165,7 @@ html_static_path = ['_static']
 # base URL from which the finished HTML is served.
 #html_use_opensearch = ''
 
-# This is the file name suffix for HTML files (e.g. ".xhtml").
+# This is the file name suffix for HTML models (e.g. ".xhtml").
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
@@ -185,7 +185,7 @@ latex_elements = {
 #'preamble': '',
 }
 
-# Grouping the document tree into LaTeX files. List of tuples
+# Grouping the document tree into LaTeX models. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'dlib.tex', u'dlib Documentation',
@@ -228,7 +228,7 @@ man_pages = [
 
 # -- Options for Texinfo output ------------------------------------------------
 
-# Grouping the document tree into Texinfo files. List of tuples
+# Grouping the document tree into Texinfo models. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
