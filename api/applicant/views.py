@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import Base64ImageValidator
 from .models import Applicant, Error
-from applicant.func import getEmbeddingFromBase64, checkEquality
+from applicant.face import getEmbeddingFromBase64, checkEquality
 import numpy as np
 import logging
 

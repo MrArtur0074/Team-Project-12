@@ -16,5 +16,5 @@ class Base64ImageValidator(serializers.Serializer):
             image.verify()
         except Exception as e:
             print(e)
-            raise ValidationError("Некорректное изображение или формат base64.")
+            raise ValidationError("Image is nor coded with Base64")
         return value

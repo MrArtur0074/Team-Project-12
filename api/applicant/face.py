@@ -11,14 +11,13 @@ import os
 
 def getEmbeddingFromBase64(base64_string: str):
     try:
-        """Декодирует Base64 строку в изображение PIL."""
-        alg = os.path.abspath("files/files/haarcascade_frontalface_default.xml")  # Используем абсолютный путь
+        alg = os.path.abspath("files/files/haarcascade_frontalface_default.xml")
         if not os.path.exists(alg):
             raise FileNotFoundError(f"Файл не найден: {alg}")
 
         haar_cascade = cv2.CascadeClassifier(alg)
         if haar_cascade.empty():
-            raise ValueError("Ошибка загрузки каскада: Файл пуст или повреждён")
+            raise ValueError("File was damaged")
 
         ibed = imgbeddings()
         image_data = Image.open(io.BytesIO(base64.b64decode(base64_string)))
@@ -39,27 +38,26 @@ def getEmbeddingFromBase64(base64_string: str):
 
     except Exception as e:
         print("❌ Ошибка в getEmbeddingFromBase64:")
-        print(traceback.format_exc())  # Выводим полный стек ошибки
+        print(traceback.format_exc())
         return str(e)
 
 
 def checkEquality(embeddings: dict, targetEmbedding: np.ndarray):
-    if not embeddings:  # Если база пустая, возвращаем None (новое лицо)
+    if not embeddings:
         return None
 
     threshold = 0.1
-    closest_distance = float("inf")  # Инициализируем большим значением
+    closest_distance = float("inf")
     closest_face = None
 
     for file, embedding in embeddings.items():
         if embedding.shape == targetEmbedding.shape:
             distance = cosine(targetEmbedding, embedding)
-            if distance < closest_distance:  # Обновляем ближайшее расстояние
+            if distance < closest_distance:
                 closest_distance = distance
                 closest_face = file
 
-    # Проверяем, попадает ли ближайшее расстояние в порог
     if closest_distance < threshold:
         return closest_face
 
-    return None  # Если лицо уникальное
+    return None
