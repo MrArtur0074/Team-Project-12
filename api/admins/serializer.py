@@ -2,45 +2,34 @@ from rest_framework import serializers
 from admins.models import CustomUser
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
-from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
-    email = serializers.EmailField()
-    name = serializers.CharField(max_length=20)
-    surname = serializers.CharField(max_length=20)
 
     class Meta:
         model = CustomUser
         fields = ['id', 'surname', 'email', 'name', 'confirmation_code', 'password',
-                  'password_confirm', 'created_at', 'is_active']
-
-    def validate_password(self, data):
-        if validate_password(data) is not None:
-            raise serializers.ValidationError("Password min length is 8")
-        return data
+                  'password_confirm', 'created_at', 'is_active', 'email_confirmed']
 
     def validate(self, data):
-
         if data.get('password') != data.get('password_confirm'):
             raise serializers.ValidationError("Passwords do not match.")
-
         return data
 
     def create(self, validated_data):
         confirmation_code = get_random_string(length=4, allowed_chars='0123456789')
 
         user = CustomUser.objects.create_user(
+            username=validated_data['email'],
             name=validated_data['name'],
             surname=validated_data['surname'],
-            email=validated_data.get('email'),
+            email=validated_data['email'],
             password=validated_data['password'],
             is_active=False,
+            email_confirmed=False,
             confirmation_code=confirmation_code,
         )
 
@@ -52,53 +41,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
         return user
 
-
-class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    def validate_new_password(self, data):
-        if validate_password(data) is not None:
-            raise serializers.ValidationError("Password min length is 8")
-        return data
-
-
-class ForgotPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-
-
-class ResetPasswordSerializer(serializers.Serializer):
-    confirmation_code = serializers.CharField(required=True)
-    email = serializers.CharField(required=True)
-    new_password = serializers.CharField(write_only=True, required=True)
-    confirm_new_password = serializers.CharField(write_only=True, required=True)
-
-    def validate_new_password(self, data):
-        if validate_password(data) is not None:
-            raise serializers.ValidationError("Password min length is 8")
-        return data
-
-    def validate(self, data):
-        if data.get('new_password') != data.get('confirm_new_password'):
-            raise serializers.ValidationError('Passwords is not match')
-        return data
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'surname', 'email', 'name', 'avatar', 'created_at', 'is_active']
-
-
-class AdminApprovalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'email', 'is_active']
-
-class AdminUserListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'email', 'is_active']
 
 class ConfirmEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -125,9 +67,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         email = attrs.get("email")
         password = attrs.get("password")
 
-        user = User.objects.filter(email=email).first()
+        user = CustomUser.objects.filter(email=email).first()
         if user and user.check_password(password):
+            if not user.email_confirmed:
+                raise serializers.ValidationError("Email is not confirmed.")
+            if not user.is_active:
+                raise serializers.ValidationError("Admin has not approved your account.")
             return super().validate({"username": user.username, "password": password})
 
         raise serializers.ValidationError("Invalid credentials")
 
+class AdminUserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'is_active', 'email_confirmed']

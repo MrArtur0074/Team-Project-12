@@ -55,7 +55,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "api.wsgi.application"
-
+AUTH_USER_MODEL = 'admins.CustomUser'
 
 DATABASES = {
     "default": {

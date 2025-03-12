@@ -9,7 +9,6 @@ urlpatterns = [
 
     path('logout/', TokenBlacklistView.as_view()),
 
-    path('user-list/', UserListView.as_view()),
     path('admins-approve/<int:user_id>/', AdminApprovalView.as_view(), name='admins-approve'),
     path('admins-users/', AdminUserListView.as_view(), name='admins-user-list'),
     path('admins-reject/<int:user_id>/', AdminRejectUserView.as_view(), name='admins-reject'),
