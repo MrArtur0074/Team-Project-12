@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website with Login and Register</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: url('https://cdn-1.aki.kg/cdn-st-0/qex/4/2708211.e161eb807f9aaef4476448214eb340cf.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 99;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px; /* Высота логотипа */
+            width: auto;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar a {
+            font-size: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 40px;
+        }
+
+        .navbar .btnLogin-popup {
+            background: transparent;
+            border: none;
+            font-size: 19px;
+            color: #fff;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .navbar .btnLogin-popup::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 100%;
+            height: 2px;
+            background: #fff;
+            opacity: 0.85;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 98;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .wrapper {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 450px;
+            max-width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            box-shadow: -1px 0 10px rgba(0, 0, 0, .2);
+            border-left: 2px solid rgba(255, 255, 255, .1);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 0 40px;
+            transition: right 0.3s ease;
+        }
+
+        .wrapper.active-popup {
+            right: 0;
+        }
+
+        .icon-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45px;
+            height: 45px;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 10px;
+            font-size: 32px;
+            color: #333;
+        }
+
+        .logreg-box {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-box.login {
+            display: block;
+        }
+
+        .wrapper.active .form-box.login {
+            display: none;
+        }
+
+        .form-box.register {
+            display: none;
+        }
+
+        .wrapper.active .form-box.register {
+            display: block;
+        }
+
+        .logreg-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fff;
+        }
+
+        .logreg-title h2 {
+            font-size: 32px;
+        }
+
+        .logreg-title p {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            margin: 30px 0;
+            border-bottom: 2px solid #fff;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #fff;
+            font-weight: 500;
+            padding-right: 25px;
+        }
+
+        .input-box label {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #fff;
+            font-weight: 500;
+            pointer-events: none;
+            transition: .5s;
+        }
+
+        .input-box input:focus~label,
+        .input-box input:valid~label {
+            top: -5px;
+        }
+
+        .input-box .icon {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            font-size: 19px;
+            color: #fff;
+        }
+
+        .remember-forgot {
+            font-size: 14.5px;
+            color: #fff;
+            font-weight: 500;
+            margin: -15px 0 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .remember-forgot label input {
+            accent-color: #fff;
+            margin-right: 3px;
+        }
+
+        .remember-forgot a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            height: 45px;
+            background: #fff;
+            border: none;
+            border-radius: 40px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+            cursor: pointer;
+            font-size: 16px;
+            color: #222;
+            font-weight: 600;
+        }
+
+        .logreg-link {
+            font-size: 14.5px;
+            color: #fff;
+            text-align: center;
+            font-weight: 500;
+            margin: 25px 0 15px;
+        }
+
+        .logreg-link p a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .logreg-link p a:hover {
+            text-decoration: underline;
+        }
+
+        .media-options {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .media-options a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 50px;
+            background: transparent;
+            border: 2px solid #fff;
+            margin: 10px 0;
+            border-radius: 40px;
+            color: #fff;
+            text-decoration: none;
+            transition: .5s;
+        }
+
+        .media-options a:hover {
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .media-options a i {
+            font-size: 22px;
+            margin-right: 8px;
+        }
+
+        .media-options a span {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 3%;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .navbar a,
+            .navbar .btnLogin-popup {
+                margin: 10px 0;
+            }
+
+            .wrapper {
+                width: 100%;
+                padding: 0 20px;
+            }
+
+            .logreg-title h2 {
+                font-size: 24px;
+            }
+
+            .input-box {
+                margin: 20px 0;
+            }
+
+            .logo img {
+                height: 30px; /* Уменьшаем логотип на мобильных */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <header class="header">
+        <a href="#" class="logo">
+            <img src="https://cdn-1.aki.kg/st_all/bilim/9/1519540999.2.jpg" alt="Alatoo University Logo">
+        </a>
+        <nav class="navbar">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+            <button class="btnLogin-popup">Login</button>
+        </nav>
+    </header>
+
+    <div class="wrapper">
+        <span class="icon-close"><i class='bx bx-x'></i></span>
+        <div class="logreg-box">
+            <div class="form-box login">
+                <div class="logreg-title">
+                    <h2>Login</h2>
+                    <p>Please login to use the platform</p>
+                </div>
+                <form id="loginForm">
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-envelope'></i></span>
+                        <input type="email" id="loginEmail" required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-lock-alt'></i></span>
+                        <input type="password" id="loginPassword" required>
+                        <label>Password</label>
+                    </div>
+                    <div class="remember-forgot">
+                        <label><input type="checkbox">Remember me</label>
+                        <a href="#">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                    <div class="logreg-link">
+                        <p>Don't have an account? <a href="#" class="register-link">Register</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="form-box register">
+                <div class="logreg-title">
+                    <h2>Registration</h2>
+                    <p>Please provide the following to verify your identity</p>
+                </div>
+                <form id="registerForm">
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-user'></i></span>
+                        <input type="text" id="registerName" required>
+                        <label>Full Name</label>
+                    </div>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-envelope'></i></span>
+                        <input type="email" id="registerEmail" required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-lock-alt'></i></span>
+                        <input type="password" id="registerPassword" required>
+                        <label>Password</label>
+                    </div>
+                    <div class="remember-forgot">
+                        <label><input type="checkbox">I agree to the Terms and Conditions</label>
+                    </div>
+                    <button type="submit" class="btn">Register</button>
+                    <div class="logreg-link">
+                        <p>Already have an account? <a href="#" class="login-link">Login</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="media-options">
+            <a href="#"><i class='bx bxl-google'></i><span>Login with Google</span></a>
+            <a href="#"><i class='bx bxl-facebook-circle'></i><span>Login with Facebook</span></a>
+            <a href="#"><i class='bx bxl-github'></i><span>Login with GitHub</span></a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© Международный Университет Ала-Тоо 2025</p>
+    </footer>
+
+    <script>
+        const wrapper = document.querySelector('.wrapper');
+        const overlay = document.querySelector('.overlay');
+        const registerLink = document.querySelector('.register-link');
+        const loginLink = document.querySelector('.login-link');
+        const btnPopup = document.querySelector('.btnLogin-popup');
+        const iconClose = document.querySelector('.icon-close');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        // Переключение форм и затемнение фона
+        registerLink.onclick = () => {
+            wrapper.classList.add('active');
+            return false;
+        }
+
+        loginLink.onclick = () => {
+            wrapper.classList.remove('active');
+            return false;
+        }
+
+        btnPopup.onclick = () => {
+            wrapper.classList.add('active-popup');
+            overlay.classList.add('active');
+        }
+
+        iconClose.onclick = () => {
+            wrapper.classList.remove('active-popup');
+            wrapper.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // База данных пользователей (имитация, хранится в памяти)
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        // Регистрация
+        registerForm.onsubmit = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (users.some(user => user.email === email)) {
+                alert('Этот email уже зарегистрирован!');
+                return;
+            }
+
+            users.push({ name, email, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Регистрация успешна! Теперь вы можете войти.');
+            wrapper.classList.remove('active');
+            registerForm.reset();
+        }
+
+        // Логин
+        loginForm.onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const user = users.find(user => user.email === email && user.password === password);
+            if (user) {
+                alert(`Добро пожаловать, ${user.name}!`);
+                wrapper.classList.remove('active-popup');
+                overlay.classList.remove('active');
+                loginForm.reset();
+            } else {
+                alert('Неверный email или пароль!');
+            }
+        }
+    </script>
+</body>
+</html>
