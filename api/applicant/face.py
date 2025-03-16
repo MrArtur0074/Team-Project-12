@@ -1,63 +1,65 @@
 import base64
 import io
 import cv2
-from PIL import Image
+import dlib
 import numpy as np
-from imgbeddings import imgbeddings
-from scipy.spatial.distance import cosine
+from PIL import Image
 import traceback
-import os
-
 
 def getEmbeddingFromBase64(base64_string: str):
     try:
-        alg = os.path.abspath("files/haarcascade_frontalface_default.xml")
-        if not os.path.exists(alg):
-            raise FileNotFoundError(f"Файл не найден: {alg}")
+        detector = dlib.get_frontal_face_detector()
+        sp = dlib.shape_predictor("files/shape_predictor_5_face_landmarks.dat")
+        facerec = dlib.face_recognition_model_v1("files/dlib_face_recognition_resnet_model_v1.dat")
 
-        haar_cascade = cv2.CascadeClassifier(alg)
-        if haar_cascade.empty():
-            raise ValueError("File was damaged")
-
-        ibed = imgbeddings()
         image_data = Image.open(io.BytesIO(base64.b64decode(base64_string)))
         image_np = np.array(image_data)
         gray_image = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
 
-        faces = haar_cascade.detectMultiScale(
-            image=gray_image, scaleFactor=1.05, minNeighbors=5, minSize=(100, 100)
-        )
+        faces = detector(gray_image)
 
         if len(faces) > 1:
             return "More than 1 face"
         elif len(faces) == 0:
             return "No faces detected"
 
-        embedding = np.array(ibed.to_embeddings(image_data)).ravel()
+        shape = sp(gray_image, faces[0])
+        embedding = np.array(facerec.compute_face_descriptor(gray_image, shape))
         return embedding
 
     except Exception as e:
-        print("❌ Ошибка в getEmbeddingFromBase64:")
+        print("❌ Ошибка в get_embedding_from_base64:")
         print(traceback.format_exc())
         return str(e)
 
 
-def checkEquality(embeddings: dict, targetEmbedding: np.ndarray):
-    if not embeddings:
-        return None
+# def checkEquality(embedding1: np.ndarray, embedding2: np.ndarray, threshold: float = 0.6):
+#     if embedding1.shape != embedding2.shape:
+#         return "Embeddings have different shapes"
+#
+#     distance = np.linalg.norm(embedding1 - embedding2)
+#     similarity = 1 - distance
+#
+#     if similarity >= threshold:
+#         return f"Похожи ({similarity:.2f})"
+#     return f"Не похожи ({similarity:.2f})"
 
-    threshold = 0.1
-    closest_distance = float("inf")
-    closest_face = None
+def checkEquality(embeddings_dict: dict, embedding: np.ndarray, threshold: float = 0.6):
+    if not embeddings_dict:
+        return False  # Если база пустая, нет смысла проверять
 
-    for file, embedding in embeddings.items():
-        if embedding.shape == targetEmbedding.shape:
-            distance = cosine(targetEmbedding, embedding)
-            if distance < closest_distance:
-                closest_distance = distance
-                closest_face = file
+    similarities = {
+        applicant_id: 1 - np.linalg.norm(embedding - emb)
+        for applicant_id, emb in embeddings_dict.items()
+        if embedding.shape == emb.shape  # Проверяем, что формы совпадают
+    }
 
-    if closest_distance < threshold:
-        return closest_face
+    if not similarities:
+        return False  # Нет совпадающих по форме эмбеддингов
 
-    return None
+    best_match_id, best_similarity = max(similarities.items(), key=lambda x: x[1])
+
+    if best_similarity >= threshold:
+        return best_match_id, f"Похожи ({best_similarity:.2f})"
+
+    return False
