@@ -1,13 +1,17 @@
 import requests
-url = " http://127.0.0.1:8000/photo/"
+url = " http://127.0.0.1:8000/applicant/"
 
 
-def send_file(base64_data):
+def send_file(base64_data, applicant_id):
     headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer YOUR_TOKEN"
+        # "Content-Type": "application/json",
+        # "Authorization": "Bearer YOUR_TOKEN"
     }
-    data = {"image": base64_data}
+    data = {
+            "image": base64_data,
+            "applicant_id" : applicant_id
+            }
+    print(data)
 
     response = requests.post(url, json=data, headers=headers)
 

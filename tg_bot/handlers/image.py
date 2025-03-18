@@ -10,7 +10,7 @@ image_router = Router()
 
 @image_router.message(F.chat.id == group_id)
 async def pic(message: types.Message):
-    if message.photo:
+    if message.photo and message.caption and message.caption.isdigit():
         try:
             photo = message.photo[-1].file_id
             file = await bot.get_file(photo)
@@ -21,7 +21,7 @@ async def pic(message: types.Message):
                 photo_base64 = base64.b64encode(photo_file.read()).decode("utf-8")
 
             # Отправляем запрос
-            response = send_file(photo_base64)
+            response = send_file(photo_base64, message.caption)
 
             # Достаем код и тело ответа
             status_code = response.get("status_code", "Неизвестный код")
@@ -33,10 +33,11 @@ async def pic(message: types.Message):
             # Формируем текст ошибки для пользователя
             error_message = response_json.get("error", response_json.get("message", "Неизвестная ошибка"))
             raw_response = response_json if isinstance(response_json, dict) else str(response_json)
-
+            response_text  = "New applicant was added to DB" if status_code == 201 else f"some issues occured\ntry again"
             await message.reply(
-                text=f"📩 Ответ сервера: {status_code}\n"
-                     f"📝 Детали: {raw_response}",
+                text=response_text,
+                # text=f"📩 Ответ сервера: {status_code}\n"
+                #      f"📝 Детали: {raw_response}",
                 parse_mode='HTML'
             )
 
@@ -45,3 +46,5 @@ async def pic(message: types.Message):
                 text=f"⚠ Ошибка обработки изображения: {str(e)}",
                 parse_mode='HTML'
             )
+    else:
+        print(message.caption)
