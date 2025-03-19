@@ -12,21 +12,29 @@ from .face import getEmbeddingFromBase64, checkEquality
 
 
 class FileUploadView(APIView):
-    # permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         try:
             serializer = Base64ImageValidator(data=request.data)
             if serializer.is_valid():
                 base64_image = serializer.validated_data["image"]
                 applicant_id = request.data.get("applicant_id")
-                print(applicant_id)
 
                 if not applicant_id:
-                    return Response({"error": "applicant_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+                    print("applicant_id отсутствует в запросе")
+                    embedding, extracted_applicant_id = getEmbeddingFromBase64(base64_image)
+                    applicant_id = extracted_applicant_id if extracted_applicant_id else None
+                else:
+                    embedding = getEmbeddingFromBase64(base64_image)
 
-                embedding = getEmbeddingFromBase64(base64_image)
-                print("Embedding создан:", type(embedding),
-                      embedding.shape if isinstance(embedding, np.ndarray) else None)
+                print("Используемый applicant_id:", applicant_id)
+
+                if not applicant_id:
+                    Error.objects.create(
+                        base64=base64_image,
+                        array_data=pickle.dumps(embedding),
+                        error="Не удалось получить applicant_id"
+                    )
+                    return Response({"error": "Не удалось получить applicant_id"}, status=status.HTTP_400_BAD_REQUEST)
 
                 if not isinstance(embedding, np.ndarray):
                     Error.objects.create(
@@ -80,4 +88,5 @@ class FileUploadView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            return Response({"error": f"Внутренняя ошибка сервера{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": f"Внутренняя ошибка сервера: {str(e)}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

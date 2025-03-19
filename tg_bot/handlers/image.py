@@ -4,9 +4,7 @@ from .request_to_api import send_file
 
 import base64
 
-
 image_router = Router()
-
 
 @image_router.message(F.chat.id == group_id)
 async def pic(message: types.Message):
@@ -27,24 +25,23 @@ async def pic(message: types.Message):
             status_code = response.get("status_code", "Неизвестный код")
             response_json = response.get("response_json", {})
 
-            # Логируем полный ответ
-            print(f"📩 Ответ сервера: {status_code}, {response_json}")
+            # Определяем сообщение пользователю
+            if status_code == 201:
+                response_text = "✅ Успешно: лицо добавлено в базу."
+            elif status_code == 400:
+                error_message = response_json.get("error", "Некорректные данные.")
+                response_text = f"⚠ Ошибка: {error_message}"
+            elif status_code == 500:
+                response_text = "❌ Ошибка сервера. Попробуйте позже."
+            else:
+                response_text = "⚠ Неизвестная ошибка. Проверьте данные."
 
-            # Формируем текст ошибки для пользователя
-            error_message = response_json.get("error", response_json.get("message", "Неизвестная ошибка"))
-            raw_response = response_json if isinstance(response_json, dict) else str(response_json)
-            response_text  = "New applicant was added to DB" if status_code == 201 else f"some issues occured\ntry again"
-            await message.reply(
-                text=response_text,
-                # text=f"📩 Ответ сервера: {status_code}\n"
-                #      f"📝 Детали: {raw_response}",
-                parse_mode='HTML'
-            )
+            await message.reply(text=response_text, parse_mode="HTML")
 
         except Exception as e:
             await message.reply(
-                text=f"⚠ Ошибка обработки изображения: {str(e)}",
-                parse_mode='HTML'
+                text=f"❌ Ошибка обработки: {str(e)}",
+                parse_mode="HTML"
             )
     else:
         print(message.caption)
