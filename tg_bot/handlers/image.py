@@ -8,7 +8,7 @@ image_router = Router()
 
 @image_router.message(F.chat.id == group_id)
 async def pic(message: types.Message):
-    if message.photo and message.caption and message.caption.isdigit():
+    if message.photo:
         try:
             photo = message.photo[-1].file_id
             file = await bot.get_file(photo)
@@ -19,7 +19,8 @@ async def pic(message: types.Message):
                 photo_base64 = base64.b64encode(photo_file.read()).decode("utf-8")
 
             # Отправляем запрос
-            response = send_file(photo_base64, message.caption)
+
+            response = send_file(photo_base64, message.caption if message.caption and message.caption.isdigit() else None)
 
             # Достаем код и тело ответа
             status_code = response.get("status_code", "Неизвестный код")
