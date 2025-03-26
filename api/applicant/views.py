@@ -19,48 +19,45 @@ class FileUploadView(APIView):
             if serializer.is_valid():
                 base64_image = serializer.validated_data["image"]
                 applicant_id = request.data.get("applicant_id")
+                embedding = getEmbeddingFromBase64(base64_image)
 
                 if not applicant_id:
-                    print("⚠ applicant_id отсутствует в запросе, пытаемся извлечь из фото...")
                     applicant_id = extract_number_from_base64(base64_image)
 
-                print("✅ Используемый applicant_id:", applicant_id)
 
-                # Если `applicant_id` так и не удалось получить, записываем ошибку
-                if not applicant_id:
+                if not applicant_id or not applicant_id.isdigit():
                     Error.objects.create(
+                        applicant_id=0,
                         base64=base64_image,
-                        array_data=None,
-                        error="Не удалось определить applicant_id"
+                        array_data=pickle.dumps(embedding),
+                        error="Не удалось определить ID студента"
                     )
-                    return Response({"error": "Не удалось определить applicant_id"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error": "Не удалось определить ID студента"}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Проверяем, существует ли `applicant_id` в базе
                 if Applicant.objects.filter(applicant_id=applicant_id).exists():
                     Error.objects.create(
                         applicant_id=applicant_id,
                         base64=base64_image,
-                        array_data=None,
-                        error="Этот applicant_id уже зарегистрирован"
+                        array_data=pickle.dumps(embedding),
+                        error="Студент с таким ID уже зарегистрирован"
                     )
-                    return Response({"error": "Этот applicant_id уже зарегистрирован"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error": "Студент с таким ID уже зарегистрирован"}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Генерация эмбеддинга
-                embedding = getEmbeddingFromBase64(base64_image)
+
                 if not isinstance(embedding, np.ndarray):
                     Error.objects.create(
                         applicant_id=applicant_id,
                         base64=base64_image,
                         array_data=pickle.dumps(embedding),
-                        error="Ошибка при создании эмбеддинга"
+                        error="Ошибка при распозновании лица"
                     )
-                    return Response({"error": "Ошибка при создании эмбеддинга"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error": "Ошибка при распозновании лица"}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Проверяем, существует ли такое лицо в базе
                 existing_faces = Applicant.objects.all()
                 embeddings_dict = {face.applicant_id: face.get_array() for face in existing_faces}
 
                 if checkEquality(embeddings_dict, embedding):
+                    print(applicant_id, pickle.dumps(embedding))
                     Error.objects.create(
                         applicant_id=applicant_id,
                         base64=base64_image,
@@ -69,12 +66,10 @@ class FileUploadView(APIView):
                     )
                     return Response({"error": "Лицо уже существует в базе"}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Создаем нового Applicant
                 new_face = Applicant(applicant_id=applicant_id, base64=base64_image, array_data=embedding, attempt=0)
                 new_face.set_array(embedding)
                 new_face.save()
 
-                # Ищем экзамен на текущую дату
                 today = datetime.date.today()
                 exam = Exam.objects.filter(date=today).first()
 

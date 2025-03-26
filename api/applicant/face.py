@@ -29,20 +29,9 @@ def getEmbeddingFromBase64(base64_string: str):
 
     except Exception as e:
         print("❌ Ошибка в get_embedding_from_base64:")
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return str(e)
 
-
-# def checkEquality(embedding1: np.ndarray, embedding2: np.ndarray, threshold: float = 0.6):
-#     if embedding1.shape != embedding2.shape:
-#         return "Embeddings have different shapes"
-#
-#     distance = np.linalg.norm(embedding1 - embedding2)
-#     similarity = 1 - distance
-#
-#     if similarity >= threshold:
-#         return f"Похожи ({similarity:.2f})"
-#     return f"Не похожи ({similarity:.2f})"
 
 def checkEquality(embeddings_dict: dict, embedding: np.ndarray, threshold: float = 0.6):
     if not embeddings_dict:
