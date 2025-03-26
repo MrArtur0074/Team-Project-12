@@ -14,6 +14,7 @@ class ExamResult(models.Model):
     applicant = models.ForeignKey(Applicant, on_delete=models.CASCADE)
     english = models.IntegerField(null=True, blank=True)
     math = models.IntegerField(null=True, blank=True)
+    passed = models.BooleanField()
 
     def get_english(self):
         return self.english
@@ -30,8 +31,3 @@ class ExamResult(models.Model):
         if value is not None and (value < 0 or value > 100):
             raise ValueError("Math score must be between 0 and 100")
         self.math = value
-
-
-class BestResult(models.Model):
-    exam = models.ForeignKey(ExamResult, on_delete=models.CASCADE)
-    applicant = models.ForeignKey(Applicant, on_delete=models.CASCADE)
