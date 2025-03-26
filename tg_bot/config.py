@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 
 
-TOKEN = '5838613898:AAHmQ1yecxVHDuyFw9cDFst4fCI_yzD3T5k'
+TOKEN = '5716862229:AAGvunKlR3hSq65VEn4AskzUVrvBjtzD90s'
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 group_id = -4624968539

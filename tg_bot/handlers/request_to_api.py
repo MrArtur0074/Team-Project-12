@@ -11,13 +11,12 @@ def send_file(base64_data, applicant_id):
             "image": base64_data,
             "applicant_id" : applicant_id
             }
-    print(data)
 
     response = requests.post(url, json=data, headers=headers)
+    print(response.json())
 
-    # Логируем полный ответ
     try:
-        response_json = response.json()  # Попробуем получить JSON
+        response_json = response.json()
     except ValueError:
         response_json = {"error": "Сервер вернул не JSON", "raw_text": response.text}
 
