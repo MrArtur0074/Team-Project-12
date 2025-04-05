@@ -4,3 +4,4 @@ venv/
 api/db.sqlite3
 api/photoscan/faces
 api/photoscan/files
+myenv/
