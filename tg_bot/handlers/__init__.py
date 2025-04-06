@@ -1,1 +1,0 @@
-from tg_bot.handlers.image import image_router

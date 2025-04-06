@@ -1,4 +1,6 @@
 from pathlib import Path
+from datetime import timedelta
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -7,7 +9,9 @@ SECRET_KEY = "django-insecure-=tip58=7z%6h)76*h(aschski^77ee)7u)o2-md#vuu9o)=h#8
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+# CORS_ALLOWED_ORIGINS = ['*']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -20,12 +24,16 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     "rest_framework",
+    'corsheaders',
     "applicant",
     "exam",
     "admins"
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -92,6 +100,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 EMAIL_HOST_USER = 'pythonalgorythgame@gmail.com'
 EMAIL_HOST_PASSWORD = 'uujw xmyt rgjd zwzv'
 
@@ -111,3 +122,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),  # токен будет жить 30 дней
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=60),  # рефреш-токен живет 60 дней
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+

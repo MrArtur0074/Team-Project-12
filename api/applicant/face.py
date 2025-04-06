@@ -52,3 +52,10 @@ def checkEquality(embeddings_dict: dict, embedding: np.ndarray, threshold: float
         return best_match_id, f"Похожи ({best_similarity:.2f})"
 
     return False
+
+def checkEquality2(embeddings_dict, target_embedding, threshold=0.6, return_id=False):
+    for applicant_id, embedding in embeddings_dict.items():
+        distance = np.linalg.norm(embedding - target_embedding)
+        if distance < threshold:
+            return applicant_id if return_id else True
+    return None if return_id else False

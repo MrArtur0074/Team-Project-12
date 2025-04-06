@@ -12,9 +12,9 @@ async def pic(message: types.Message):
         try:
             photo = message.photo[-1].file_id
             file = await bot.get_file(photo)
-            await bot.download_file(file.file_path, "handlers/student.png")
+            await bot.download_file(file.file_path, "group/student.png")
 
-            with open("handlers/student.png", "rb") as photo_file:
+            with open("group/student.png", "rb") as photo_file:
                 photo_base64 = base64.b64encode(photo_file.read()).decode("utf-8")
 
             response = send_file(photo_base64, message.caption if message.caption and message.caption.isdigit() else None)
