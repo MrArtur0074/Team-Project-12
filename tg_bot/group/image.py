@@ -8,6 +8,8 @@ image_router = Router()
 
 @image_router.message()
 async def pic(message: types.Message):
+
+
     if message.photo:
         try:
             photo = message.photo[-1].file_id

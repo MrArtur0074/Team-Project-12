@@ -1,22 +1,19 @@
 from aiogram import Bot, Dispatcher, types
+from decouple import config
+from db.sql_q import DB
 
-
-TOKEN = '5716862229:AAGvunKlR3hSq65VEn4AskzUVrvBjtzD90s'
+TOKEN = config("TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-group_id = -4624968539
-teachers = [656051677, 396952302, 1373122571, 1154757842]
 
+db = DB()
+admin = db.get_admin()[0] if db.get_admin() else False
+group_id = [i[0] for i in db.get_groups()]
+teachers = [i[0] for i in db.get_teachers()]
+admin_command = config('ADMIN_KEY')
 
 async def set_commands():
-    """
-    Настройка команд
-     в меню бота
-    """
-    # строка выше наз-ся Docstring
+
     await bot.set_my_commands([
         types.BotCommand(command="start", description="Старт"),
-        # types.BotCommand(command="pic", description="Отправить картинку"),
-        # types.BotCommand(command="courses", description="Наши курсы"),
-        # types.BotCommand(command="lesson", description="Записаться на пробный урок"),
     ])
