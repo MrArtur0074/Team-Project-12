@@ -7,9 +7,9 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 db = DB()
-admin = db.get_admin()[0] if db.get_admin() else False
+admin = db.get_admin()[1] if db.get_admin() else False
 group_id = [i[0] for i in db.get_groups()]
-teachers = [i[0] for i in db.get_teachers()]
+teachers = [i[1] for i in db.get_teachers()]
 admin_command = config('ADMIN_KEY')
 
 async def set_commands():

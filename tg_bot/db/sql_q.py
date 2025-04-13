@@ -22,16 +22,13 @@ class DB:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS teachers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tg_id INTEGER,
-                fullname TEXT,
-                username TEXT
+                tg_id INTEGER
             )
         ''')
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS groups (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 group_id INTEGER,
-                title TEXT
             )
         ''')
         self.cursor.execute('''
@@ -50,7 +47,7 @@ class DB:
     def new_teacher(self, data: dict):
         '''Добавление нового учителя'''
         self.cursor.execute(
-            "INSERT INTO teachers (tg_id, fullname, username) VALUES (:tg_id, :fullname, :username)",
+            "INSERT INTO teachers (tg_id) VALUES (:tg_id)",
             data
         )
         self.connection.commit()
@@ -63,7 +60,7 @@ class DB:
     def new_group(self, data: dict):
         '''Добавление новой группы'''
         self.cursor.execute(
-            "INSERT INTO groups (group_id, title) VALUES (:group_id, :title)",
+            "INSERT INTO groups (group_id) VALUES (:group_id)",
             data
         )
         self.connection.commit()
@@ -71,7 +68,7 @@ class DB:
     def get_admin(self):
         '''Получение администратора'''
         self.cursor.execute("SELECT * FROM admin")
-        return self.cursor.fetchall()
+        return self.cursor.fetchone()
 
     def set_admin(self, data: dict):
         '''Очистка таблицы и установка нового администратора'''
