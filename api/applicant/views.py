@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .num_rec import *
+from django.utils import timezone
 from .serializers import Base64ImageValidator
 from .models import Applicant, Error, BlackList
 from exam.models import Exam, ExamResult
@@ -42,6 +43,14 @@ class FileUploadView(APIView):
                     )
                     return Response({"error": "Студент с таким ID уже зарегистрирован"}, status=status.HTTP_400_BAD_REQUEST)
 
+                if BlackList.objects.filter(applicant_id=applicant_id).exists():
+                    Error.objects.create(
+                        applicant_id=applicant_id,
+                        base64=base64_image,
+                        array_data=pickle.dumps(embedding),
+                        error="Студент находится в черном списке"
+                    )
+                    return Response({"error": "Студент находится в черном списке"}, status=status.HTTP_400_BAD_REQUEST)
 
                 if not isinstance(embedding, np.ndarray):
                     Error.objects.create(
@@ -52,8 +61,23 @@ class FileUploadView(APIView):
                     )
                     return Response({"error": "Ошибка при распозновании лица"}, status=status.HTTP_400_BAD_REQUEST)
 
-                existing_faces = Applicant.objects.all()
+                current_year = timezone.now().year
+
+                existing_faces = Applicant.objects.filter(created_at__year=current_year)
+                existing_faces_black_list = BlackList.objects.filter(created_at__year=current_year)
+
                 embeddings_dict = {face.applicant_id: face.get_array() for face in existing_faces}
+                embeddings_dict_black_list = {face.applicant_id: face.get_array() for face in existing_faces_black_list}
+
+                if checkEquality(embeddings_dict_black_list, embedding):
+                    print(applicant_id, pickle.dumps(embedding))
+                    Error.objects.create(
+                        applicant_id=applicant_id,
+                        base64=base64_image,
+                        array_data=pickle.dumps(embedding),
+                        error="Студент в черном списке"
+                    )
+                    return Response({"error": "Студент в черном списке"}, status=status.HTTP_400_BAD_REQUEST)
 
                 if checkEquality(embeddings_dict, embedding):
                     print(applicant_id, pickle.dumps(embedding))
@@ -65,14 +89,6 @@ class FileUploadView(APIView):
                     )
                     return Response({"error": "Лицо уже существует в базе"}, status=status.HTTP_400_BAD_REQUEST)
 
-                if BlackList.objects.filter(applicant_id=applicant_id).exists():
-                    Error.objects.create(
-                        applicant_id=applicant_id,
-                        base64=base64_image,
-                        array_data=pickle.dumps(embedding),
-                        error="Студент находится в черном списке"
-                    )
-                    return Response({"error": "Студент находится в черном списке"}, status=status.HTTP_400_BAD_REQUEST)
 
                 new_face = Applicant(applicant_id=applicant_id, base64=base64_image, array_data=embedding, attempt=0)
                 new_face.set_array(embedding)
