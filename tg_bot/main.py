@@ -2,7 +2,7 @@ import asyncio
 import logging
 from config import bot, dp, set_commands
 from group import image_router
-from admin import admin_router, router, teacher_router
+from admin import admin_router, group_router, teacher_router, fsm_router, admin_fsm_router
 from db.queries import init_db, create_tables
 
 async def on_startup(dispatcher):
@@ -14,6 +14,9 @@ async def on_startup(dispatcher):
 async def main():
     await set_commands()
     dp.include_router(admin_router)
+    dp.include_router(admin_fsm_router)
+    dp.include_router(fsm_router)
+    dp.include_router(group_router)
     dp.include_router(teacher_router)
     dp.include_router(image_router)
     await dp.start_polling(bot, skip_updates=True)

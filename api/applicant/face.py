@@ -18,19 +18,20 @@ def getEmbeddingFromBase64(base64_string: str):
 
         faces = detector(gray_image)
 
-        if len(faces) > 1:
-            return "More than 1 face"
-        elif len(faces) == 0:
+        if len(faces) == 0:
             return "No faces detected"
 
-        shape = sp(gray_image, faces[0])
+        # Выбрать самое большое лицо
+        largest_face = max(faces, key=lambda rect: rect.width() * rect.height())
+
+        shape = sp(gray_image, largest_face)
         embedding = np.array(facerec.compute_face_descriptor(gray_image, shape))
         return embedding
 
     except Exception as e:
         print("❌ Ошибка в get_embedding_from_base64:")
-        # print(traceback.format_exc())
         return str(e)
+
 
 
 def checkEquality(embeddings_dict: dict, embedding: np.ndarray, threshold: float = 0.6):
@@ -53,9 +54,35 @@ def checkEquality(embeddings_dict: dict, embedding: np.ndarray, threshold: float
 
     return False
 
-def checkEquality2(embeddings_dict, target_embedding, threshold=0.6, return_id=False):
-    for applicant_id, embedding in embeddings_dict.items():
-        distance = np.linalg.norm(embedding - target_embedding)
-        if distance < threshold:
-            return applicant_id if return_id else True
-    return None if return_id else False
+# def checkEquality2(embeddings_dict: dict, target_embedding: np.ndarray, threshold: float = 0.6):
+#     if not embeddings_dict:
+#         return False  # База пустая — нечего сравнивать
+#
+#     for embedding in embeddings_dict.values():
+#         if embedding.shape != target_embedding.shape:
+#             continue  # Пропускаем эмбеддинги с несовпадающей формой
+#
+#         distance = np.linalg.norm(embedding - target_embedding)
+#         if distance < threshold:
+#             return None  # Нашли хотя бы одно похожее лицо
+#
+#     return False  # Ничего похожего не нашли
+def checkEquality2(embeddings_dict: dict, embedding: np.ndarray, threshold: float = 0.6):
+    if not embeddings_dict:
+        return None
+
+    similarities = {
+        applicant_id: 1 - np.linalg.norm(embedding - emb)
+        for applicant_id, emb in embeddings_dict.items()
+        if embedding.shape == emb.shape  # Проверяем, что формы совпадают
+    }
+
+    if not similarities:
+        return None
+
+    best_match_id, best_similarity = max(similarities.items(), key=lambda x: x[1])
+
+    if best_similarity >= threshold:
+        return best_match_id  # <-- Вот здесь теперь возвращается найденный applicant_id
+
+    return None

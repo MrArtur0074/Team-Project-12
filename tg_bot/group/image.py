@@ -1,5 +1,5 @@
 from aiogram import Router, types, F
-from tg_bot.config import bot, group_id, teachers
+from tg_bot.config import bot
 from .request_to_api import send_file
 
 import base64
@@ -8,8 +8,6 @@ image_router = Router()
 
 @image_router.message()
 async def pic(message: types.Message):
-
-
     if message.photo:
         try:
             photo = message.photo[-1].file_id

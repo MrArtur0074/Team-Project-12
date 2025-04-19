@@ -2,10 +2,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from sympy import Q
+from django.db.models import Q
 
 from .face import getEmbeddingFromBase64, checkEquality2
-from .models import Applicant
+from .models import Applicant, BlackList
 from .serializers import ApplicantSerializer
 
 
@@ -34,7 +34,6 @@ class ApplicantDetailAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class ApplicantSearchAPIView(APIView):
     # permission_classes = [IsAdminUser]
 
@@ -54,10 +53,21 @@ class ApplicantSearchAPIView(APIView):
         elif base64_image:
             try:
                 embedding = getEmbeddingFromBase64(base64_image)
+
+                # Проверка BlackList
+                blacklisted = BlackList.objects.all()
+                blacklist_embeddings = {b.applicant_id: b.get_array() for b in blacklisted}
+                matched_black_id = checkEquality2(blacklist_embeddings, embedding)
+
+                if matched_black_id:
+                    return Response(
+                        {"message": "Пользователь найден в чёрном списке", "blacklist_id": matched_black_id},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+
                 applicants = Applicant.objects.all()
                 embeddings_dict = {a.applicant_id: a.get_array() for a in applicants}
-
-                matched_id = checkEquality2(embeddings_dict, embedding, return_id=True)
+                matched_id = checkEquality2(embeddings_dict, embedding)
 
                 if matched_id:
                     applicant = Applicant.objects.get(applicant_id=matched_id)
@@ -70,5 +80,3 @@ class ApplicantSearchAPIView(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"error": "Пустой запрос"}, status=status.HTTP_400_BAD_REQUEST)
-
-

@@ -1,5 +1,5 @@
 import requests
-url = " http://127.0.0.1:8000/applicant/"
+url = " http://127.0.0.1:8000/applicant/applicants/upload/"
 
 
 def send_file(base64_data, applicant_id):
@@ -7,6 +7,7 @@ def send_file(base64_data, applicant_id):
         # "Content-Type": "application/json",
         # "Authorization": "Bearer YOUR_TOKEN"
     }
+    #5116
     data = {
             "image": base64_data,
             "applicant_id" : applicant_id

@@ -3,16 +3,15 @@ from aiogram.fsm.context import FSMContext
 
 from .key_boards import start_kb, admin_kb
 from aiogram.filters import Command
-from tg_bot.config import teachers, admin_command, db, admin, bot
+from tg_bot.config import admin_command, db, admin, bot
 
 admin_router = Router()
 
 @admin_router.message(Command("start"))
 async def start(message: types.Message):
-    print(admin, teachers, message.from_user.id)
     if message.from_user.id == admin:
         await message.answer(f"Здравствуйте! {message.from_user.full_name}", reply_markup=admin_kb)
-    elif message.from_user.id in teachers:
+    elif message.from_user.id in [i[1] for i in db.get_teachers()]:
         await message.answer(f"Здравствуйте! {message.from_user.full_name}", reply_markup=start_kb)
 
 
@@ -26,4 +25,4 @@ async def new_admin(message: types.Message):
 @admin_router.message(F.data == "cancel")
 async def cancel_registration(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    await bot.send_message(call.from_user.id, "Добавление новой группы приостновлено")
+    await bot.send_message(call.from_user.id, "Процесс приостановлен")

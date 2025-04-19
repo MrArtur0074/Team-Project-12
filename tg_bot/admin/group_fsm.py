@@ -1,7 +1,7 @@
 from aiogram import Router, F, types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from tg_bot.config import bot, admin, db, group_id
+from tg_bot.config import bot, admin, db
 from .key_boards import cancel_kb, group_kb
 
 
@@ -22,11 +22,10 @@ async def new_group(call: types.CallbackQuery, state: FSMContext):
 @group_router.message(Groups.new_group)
 async def chat_shared(message: types.Message, state: FSMContext):
     if message.chat_shared:
-        if message.chat_shared.chat_id in group_id:
+        if message.chat_shared.chat_id in [i[0] for i in db.get_groups()]:
             await message.answer(f"Группа с id {message.chat_shared.chat_id} уже существует")
         else:
-            # todo
-            # create object in DB
+            db.new_teacher({"tg_id": message.user_shared.user_id})
             await message.answer(f"Группа с id {message.chat_shared.chat_id} был добавлен")
         await state.clear()
     else:
@@ -35,6 +34,5 @@ async def chat_shared(message: types.Message, state: FSMContext):
 @group_router.callback_query(F.data == "clear_groups")
 async def clear_groups(call: types.CallbackQuery):
     if call.from_user.id == admin:
-        # todo
-        # clear db
-        await bot.send_message(call.from_user.id, "Нажмите на кнопку и выберите учиетля")
+        db.clear_table("groups")
+        await bot.send_message(call.from_user.id, "Список групп был очищен")
