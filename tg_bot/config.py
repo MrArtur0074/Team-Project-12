@@ -3,11 +3,10 @@ from decouple import config
 from db.sql_q import DB
 
 TOKEN = config("TOKEN")
+Api_address = config("API_ADDRESS")
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
 db = DB()
-admin = db.get_admin()[1] if db.get_admin() else False
 admin_command = config('ADMIN_KEY')
 
 async def set_commands():

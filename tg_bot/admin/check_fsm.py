@@ -1,12 +1,13 @@
 import asyncio
 import base64
-from io import BytesIO
-
+import uuid
+from pathlib import Path
+from aiogram.types import FSInputFile
 from aiogram import Router, F, types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from tg_bot.config import bot, db
-from .key_boards import cancel_kb
+from tg_bot.config import db
+from .key_boards import cancel_kb, start_kb
 
 from .request import search_by_photo, search_by_id
 
@@ -16,23 +17,50 @@ class FaceIDCheck(StatesGroup):
     face = State()
     id = State()
 
+
+@fsm_router.callback_query(F.data == "cancel")
+async def cancel_registration(call: types.CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await state.clear()
+    await call.message.answer("Процесс приостановлен")
+
+
 @fsm_router.callback_query(F.data == "face_check")
 async def face_check(call: types.CallbackQuery, state: FSMContext):
-    if call.from_user.id in [i[1] for i in db.get_teachers()] and call.message.chat.id > 0:
-        await state.set_state(FaceIDCheck.face)
-        await bot.send_message(call.from_user.id, "Отправьте лицо студента", reply_markup=cancel_kb)
+    if call.from_user.id not in [i[1] for i in db.get_teachers()]:
+        await call.answer("Нет доступа", show_alert=True)
+        return
+
+    await call.message.delete()
+    await state.set_state(FaceIDCheck.face)
+    await call.message.answer("Отправьте лицо студента", reply_markup=cancel_kb)
+
 
 @fsm_router.callback_query(F.data == "id_check")
 async def id_check(call: types.CallbackQuery, state: FSMContext):
-    if call.from_user.id in [i[1] for i in db.get_teachers()] and call.message.chat.id > 0:
-        await state.set_state(FaceIDCheck.id)
-        await bot.send_message(call.from_user.id, "Напишите id студента", reply_markup=cancel_kb)
+    if call.from_user.id not in [i[1] for i in db.get_teachers()]:
+        await call.answer("Нет доступа", show_alert=True)
+        return
+
+    await call.message.delete()
+    await state.set_state(FaceIDCheck.id)
+    await call.message.answer("Напишите id студента", reply_markup=cancel_kb)
+
 
 @fsm_router.message(FaceIDCheck.id)
 async def id_response(message: types.Message, state: FSMContext):
+    if message.from_user.id not in [i[1] for i in db.get_teachers()]:
+        await message.answer("Нет доступа")
+        return
+
+    await message.delete()
     await state.clear()
 
-    data, status_code = await asyncio.to_thread(search_by_id, int(message.text))
+    try:
+        data, status_code = await asyncio.to_thread(search_by_id, int(message.text))
+    except ValueError:
+        await message.answer("ID должен быть числом.")
+        return
 
     if status_code == 200 and isinstance(data, list) and data:
         await send_applicant_info(message, data[0])
@@ -41,9 +69,20 @@ async def id_response(message: types.Message, state: FSMContext):
     else:
         await message.answer(f"⚠️ Ошибка при запросе к серверу.\n\n{data.get('error', '')}")
 
+    # Завершение
+    await message.answer(
+        f"Здравствуйте! {message.from_user.full_name}",
+        reply_markup=start_kb
+    )
+
 
 @fsm_router.message(FaceIDCheck.face)
 async def face_response(message: types.Message, state: FSMContext):
+    if message.from_user.id not in [i[1] for i in db.get_teachers()]:
+        await message.answer("Нет доступа")
+        return
+
+    await message.delete()
     await state.clear()
 
     if not message.photo:
@@ -65,11 +104,11 @@ async def face_response(message: types.Message, state: FSMContext):
     else:
         await message.answer(f"⚠️ Ошибка при запросе к серверу.\n\n{data.get('error', '')}")
 
-
-import base64
-import uuid
-from pathlib import Path
-from aiogram.types import FSInputFile
+    # Завершение
+    await message.answer(
+        f"Здравствуйте! {message.from_user.full_name}",
+        reply_markup=start_kb
+    )
 
 
 async def send_applicant_info(message: types.Message, data: dict):
@@ -91,7 +130,6 @@ async def send_applicant_info(message: types.Message, data: dict):
 
             photo = FSInputFile(image_path)
             await message.answer_photo(photo=photo, caption=text, parse_mode="HTML")
-
             image_path.unlink(missing_ok=True)
         except Exception as e:
             await message.answer(f"{text}\n\n⚠️ Ошибка при отправке фото: {e}", parse_mode="HTML")

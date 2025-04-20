@@ -1,12 +1,12 @@
 import requests
 import base64
-
-URL = "http://127.0.0.1:8000/applicant/applicants/search/"
+from tg_bot.config import Api_address
 
 
 def search_by_photo(photo_bytes):
     base64_data = base64.b64encode(photo_bytes).decode("utf-8")
-    response = requests.post(URL, json={"image": base64_data})
+    url = Api_address + "/applicant/applicants/search/"
+    response = requests.post(url, json={"image": base64_data})
 
     try:
         response_json = response.json()
@@ -17,7 +17,9 @@ def search_by_photo(photo_bytes):
 
 
 def search_by_id(applicant_id):
-    response = requests.post(URL, json={"query": applicant_id})
+    url = Api_address + "/applicant/applicants/search/"
+
+    response = requests.post(url, json={"query": applicant_id})
 
     try:
         response_json = response.json()

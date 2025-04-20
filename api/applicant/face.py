@@ -54,19 +54,6 @@ def checkEquality(embeddings_dict: dict, embedding: np.ndarray, threshold: float
 
     return False
 
-# def checkEquality2(embeddings_dict: dict, target_embedding: np.ndarray, threshold: float = 0.6):
-#     if not embeddings_dict:
-#         return False  # База пустая — нечего сравнивать
-#
-#     for embedding in embeddings_dict.values():
-#         if embedding.shape != target_embedding.shape:
-#             continue  # Пропускаем эмбеддинги с несовпадающей формой
-#
-#         distance = np.linalg.norm(embedding - target_embedding)
-#         if distance < threshold:
-#             return None  # Нашли хотя бы одно похожее лицо
-#
-#     return False  # Ничего похожего не нашли
 def checkEquality2(embeddings_dict: dict, embedding: np.ndarray, threshold: float = 0.6):
     if not embeddings_dict:
         return None
@@ -74,7 +61,7 @@ def checkEquality2(embeddings_dict: dict, embedding: np.ndarray, threshold: floa
     similarities = {
         applicant_id: 1 - np.linalg.norm(embedding - emb)
         for applicant_id, emb in embeddings_dict.items()
-        if embedding.shape == emb.shape  # Проверяем, что формы совпадают
+        if embedding.shape == emb.shape
     }
 
     if not similarities:
@@ -83,6 +70,6 @@ def checkEquality2(embeddings_dict: dict, embedding: np.ndarray, threshold: floa
     best_match_id, best_similarity = max(similarities.items(), key=lambda x: x[1])
 
     if best_similarity >= threshold:
-        return best_match_id  # <-- Вот здесь теперь возвращается найденный applicant_id
+        return best_match_id
 
     return None

@@ -1,19 +1,20 @@
 import requests
-url = " http://127.0.0.1:8000/applicant/applicants/upload/"
+from tg_bot.config import Api_address
 
 
 def send_file(base64_data, applicant_id):
-    headers = {
-        # "Content-Type": "application/json",
-        # "Authorization": "Bearer YOUR_TOKEN"
-    }
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "Authorization": "Bearer YOUR_TOKEN"
+    # }
     #5116
     data = {
             "image": base64_data,
             "applicant_id" : applicant_id
             }
 
-    response = requests.post(url, json=data, headers=headers)
+    url = Api_address + "/applicant/applicants/upload/"
+    response = requests.post(url, json=data)
     print(response.json())
 
     try:
