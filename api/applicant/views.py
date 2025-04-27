@@ -11,8 +11,12 @@ from .serializers import Base64ImageValidator
 from .models import Applicant, Error, BlackList
 from exam.models import Exam, ExamResult
 from .face import getEmbeddingFromBase64, checkEquality
+from rest_framework.permissions import AllowAny, IsAdminUser
+
 
 class FileUploadView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         try:
             serializer = Base64ImageValidator(data=request.data)

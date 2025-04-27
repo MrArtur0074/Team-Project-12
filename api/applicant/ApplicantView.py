@@ -3,10 +3,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
-
 from .face import getEmbeddingFromBase64, checkEquality2
 from .models import Applicant, BlackList
 from .serializers import ApplicantSerializer
+from rest_framework.permissions import AllowAny
+
 
 
 class ApplicantListAPIView(APIView):
@@ -35,7 +36,7 @@ class ApplicantDetailAPIView(APIView):
 
 
 class ApplicantSearchAPIView(APIView):
-    # permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         search_term = request.data.get("query")
