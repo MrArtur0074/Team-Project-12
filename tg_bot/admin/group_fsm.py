@@ -1,8 +1,8 @@
 from aiogram import Router, F, types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from tg_bot.config import bot, db
-from .key_boards import cancel_kb, group_kb, admin_kb
+from config import db
+from key_boards import cancel_kb, group_kb, admin_kb
 
 group_router = Router()
 

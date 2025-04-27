@@ -1,1 +1,1 @@
-from tg_bot.group.image import image_router
+from group.image import image_router

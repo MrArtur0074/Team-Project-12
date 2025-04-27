@@ -1,7 +1,7 @@
 from aiogram import Router, F, types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from tg_bot.config import bot, admin, db
+from config import bot, db
 from .key_boards import cancel_kb, user_kb, admin_kb
 
 teacher_router = Router()
@@ -19,7 +19,7 @@ async def cancel_registration(call: types.CallbackQuery, state: FSMContext):
 
 @teacher_router.callback_query(F.data == "add_teacher")
 async def new_teacher(call: types.CallbackQuery, state: FSMContext):
-    if call.from_user.id != admin:
+    if call.from_user.id != db.get_admin()[1]:
         await call.answer("Нет доступа", show_alert=True)
         return
 
@@ -51,12 +51,12 @@ async def user_shared(message: types.Message, state: FSMContext):
 
 @teacher_router.callback_query(F.data == "clear_teachers")
 async def clear_teachers(call: types.CallbackQuery):
-    if call.from_user.id != admin:
+    if call.from_user.id != db.get_admin()[1]:
         await call.answer("Нет доступа", show_alert=True)
         return
 
     await call.message.delete()
     db.clear_table("teachers")
-    db.new_teacher({"tg_id": admin})  # Сохраняем текущего админа снова как учителя
+    db.new_teacher({"tg_id": db.get_admin()[1]})
     await call.message.answer("Список учителей был очищен.")
     await call.message.answer(f"Здравствуйте! {call.from_user.full_name}", reply_markup=admin_kb)

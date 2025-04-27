@@ -6,8 +6,8 @@ from aiogram.types import FSInputFile
 from aiogram import Router, F, types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from tg_bot.config import db
-from .key_boards import cancel_kb, start_kb
+from config import db
+from key_boards import cancel_kb, start_kb
 
 from .request import search_by_photo, search_by_id
 

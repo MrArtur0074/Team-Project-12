@@ -1,13 +1,11 @@
 import asyncio
 import logging
-from config import bot, dp, set_commands
+from config import bot, dp, set_commands, db
 from group import image_router
 from admin import admin_router, group_router, teacher_router, fsm_router, admin_fsm_router
-from db.queries import init_db, create_tables
 
 async def on_startup(dispatcher):
-    init_db()
-    create_tables()
+    db.create_tables()
     print('Бот вышел в онлайн')
 
 

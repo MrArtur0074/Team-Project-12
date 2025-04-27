@@ -1,7 +1,7 @@
 from aiogram import Router, types
-from .key_boards import start_kb, admin_kb
+from key_boards import start_kb, admin_kb
 from aiogram.filters import Command
-from tg_bot.config import admin_command, db
+from config import admin_command, db
 
 admin_router = Router()
 

@@ -1,6 +1,6 @@
 import requests
 import base64
-from tg_bot.config import Api_address
+from config import Api_address
 
 
 def search_by_photo(photo_bytes):
